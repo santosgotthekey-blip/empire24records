@@ -202,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 audioFolder + 'track.mp3',
                 audioFolder + 'preview.mp3',
                 audioFolder + 'song.mp3',
+                audioFolder + 'bellla guitar piano.mp3',
             ];
             
             let fileIndex = 0;
