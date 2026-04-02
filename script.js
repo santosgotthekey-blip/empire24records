@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
     });
     
-    // Fallback: hide loader after 3 seconds regardless
+    // Fallback: hide loader after 3 seconds
     setTimeout(() => {
         loader.classList.add('hidden');
     }, 3000);
@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
             cursorDot.style.top = e.clientY + 'px';
         });
         
-        // Add hover effect on interactive elements
         const interactiveElements = document.querySelectorAll('a, button, .beat-card, .service-card, .artist-card');
         interactiveElements.forEach(el => {
             el.addEventListener('mouseenter', () => cursor.classList.add('active'));
@@ -43,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ============================================
-    // Navigation - Scroll Effect
+    // Navigation
     // ============================================
     const navbar = document.getElementById('navbar');
     const navToggle = document.getElementById('navToggle');
@@ -57,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
             navbar.classList.remove('scrolled');
         }
         
-        // Back to top button
         const backToTop = document.getElementById('backToTop');
         if (window.scrollY > 500) {
             backToTop.classList.add('visible');
@@ -65,22 +63,17 @@ document.addEventListener('DOMContentLoaded', function() {
             backToTop.classList.remove('visible');
         }
         
-        // Active nav link based on scroll position
         updateActiveNavLink();
     }
     
     window.addEventListener('scroll', handleScroll);
     
-    // ============================================
-    // Mobile Navigation Toggle
-    // ============================================
     navToggle.addEventListener('click', function() {
         this.classList.toggle('active');
         navMenu.classList.toggle('active');
         document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
     });
     
-    // Close mobile menu when clicking a link
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
             navToggle.classList.remove('active');
@@ -89,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Close mobile menu when clicking outside
     document.addEventListener('click', function(e) {
         if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
             navToggle.classList.remove('active');
@@ -98,9 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ============================================
-    // Active Navigation Link on Scroll
-    // ============================================
     function updateActiveNavLink() {
         const sections = document.querySelectorAll('section[id]');
         const scrollPosition = window.scrollY + 200;
@@ -121,79 +110,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ============================================
-    // Smooth Scroll for Navigation Links
-    // ============================================
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
+            const targetElement = document.querySelector(this.getAttribute('href'));
             if (targetElement) {
-                const headerOffset = 80;
-                const elementPosition = targetElement.offsetTop;
-                const offsetPosition = elementPosition - headerOffset;
-                
                 window.scrollTo({
-                    top: offsetPosition,
+                    top: targetElement.offsetTop - 80,
                     behavior: 'smooth'
                 });
             }
         });
     });
     
-    // ============================================
-    // Back to Top Button
-    // ============================================
     const backToTop = document.getElementById('backToTop');
     backToTop.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    
-    // ============================================
-    // Animated Counter for Stats
-    // ============================================
-    function animateCounters() {
-        const counters = document.querySelectorAll('.stat-number');
-        
-        counters.forEach(counter => {
-            const target = parseInt(counter.getAttribute('data-count'));
-            const duration = 2000;
-            const step = target / (duration / 16);
-            let current = 0;
-            
-            const updateCounter = () => {
-                current += step;
-                if (current < target) {
-                    counter.textContent = Math.floor(current).toLocaleString();
-                    requestAnimationFrame(updateCounter);
-                } else {
-                    counter.textContent = target.toLocaleString() + '+';
-                }
-            };
-            
-            updateCounter();
-        });
-    }
-    
-    // Start counter animation when hero is visible
-    const heroObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCounters();
-                heroObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    const heroStats = document.querySelector('.hero-stats');
-    if (heroStats) {
-        heroObserver.observe(heroStats);
-    }
     
     // ============================================
     // Beat Filters
@@ -204,15 +137,11 @@ document.addEventListener('DOMContentLoaded', function() {
     beatFilters.forEach(filter => {
         filter.addEventListener('click', function() {
             const filterValue = this.getAttribute('data-filter');
-            
-            // Update active filter
             beatFilters.forEach(f => f.classList.remove('active'));
             this.classList.add('active');
             
-            // Filter beats
             beatCards.forEach(card => {
                 const genre = card.getAttribute('data-genre');
-                
                 if (filterValue === 'all' || genre === filterValue) {
                     card.style.display = 'block';
                     card.style.animation = 'fadeIn 0.5s ease';
@@ -224,22 +153,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ============================================
-    // Audio Player
+    // Audio Player - Folder based
     // ============================================
     let currentAudio = null;
     let currentButton = null;
     let currentCard = null;
     
     const beatPlayButtons = document.querySelectorAll('.btn-beat-play');
-    const beatCards = document.querySelectorAll('.beat-card');
     
     beatPlayButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const card = this.closest('.beat-card');
-            const audioSrc = card.getAttribute('data-audio');
+            const audioFolder = card.getAttribute('data-audio');
             const icon = this.querySelector('i');
             
-            // If clicking the same button that's currently playing
+            // If clicking same playing button, pause it
             if (currentCard === card && currentAudio && !currentAudio.paused) {
                 currentAudio.pause();
                 icon.classList.remove('fa-pause');
@@ -251,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Stop any currently playing audio
+            // Stop current audio
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio.currentTime = 0;
@@ -262,54 +190,63 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Check if audio source exists
-            if (!audioSrc) {
+            if (!audioFolder) {
                 showNotification('error', 'Audio non disponibile per questo beat.');
                 return;
             }
             
-            // Create new audio element
-            currentAudio = new Audio(audioSrc);
+            // Try multiple possible MP3 filenames in the folder
+            const possibleFiles = [
+                audioFolder + 'beat.mp3',
+                audioFolder + 'audio.mp3',
+                audioFolder + 'track.mp3',
+                audioFolder + 'preview.mp3',
+                audioFolder + 'song.mp3',
+            ];
+            
+            let fileIndex = 0;
+            currentAudio = new Audio(possibleFiles[0]);
             currentButton = this;
             currentCard = card;
             
-            // Handle audio events
-            currentAudio.addEventListener('play', () => {
-                icon.classList.remove('fa-play');
-                icon.classList.add('fa-pause');
-                this.style.background = 'var(--neon-purple)';
-            });
+            function tryNextFile() {
+                fileIndex++;
+                if (fileIndex < possibleFiles.length) {
+                    currentAudio = new Audio(possibleFiles[fileIndex]);
+                    setupAudioEvents();
+                    currentAudio.play().catch(tryNextFile);
+                } else {
+                    showNotification('error', 'Aggiungi un file .mp3 nella cartella ' + audioFolder + ' (nomi accettati: beat.mp3, audio.mp3, track.mp3, preview.mp3, song.mp3)');
+                    icon.classList.remove('fa-pause');
+                    icon.classList.add('fa-play');
+                    btn.style.background = '';
+                    currentAudio = null;
+                    currentButton = null;
+                    currentCard = null;
+                }
+            }
             
-            currentAudio.addEventListener('ended', () => {
-                icon.classList.remove('fa-pause');
-                icon.classList.add('fa-play');
-                this.style.background = '';
-                currentAudio = null;
-                currentButton = null;
-                currentCard = null;
-            });
+            function setupAudioEvents() {
+                currentAudio.addEventListener('play', () => {
+                    icon.classList.remove('fa-play');
+                    icon.classList.add('fa-pause');
+                    btn.style.background = 'var(--neon-purple)';
+                });
+                
+                currentAudio.addEventListener('ended', () => {
+                    icon.classList.remove('fa-pause');
+                    icon.classList.add('fa-play');
+                    btn.style.background = '';
+                    currentAudio = null;
+                    currentButton = null;
+                    currentCard = null;
+                });
+                
+                currentAudio.addEventListener('error', tryNextFile);
+            }
             
-            currentAudio.addEventListener('error', () => {
-                showNotification('error', 'Errore nel caricamento dell\'audio. Il beat sarà disponibile a breve.');
-                icon.classList.remove('fa-pause');
-                icon.classList.add('fa-play');
-                this.style.background = '';
-                currentAudio = null;
-                currentButton = null;
-                currentCard = null;
-            });
-            
-            // Try to play
-            currentAudio.play().catch(err => {
-                console.log('Audio playback error:', err);
-                showNotification('error', 'Audio non disponibile. Il beat sarà disponibile a breve.');
-                icon.classList.remove('fa-pause');
-                icon.classList.add('fa-play');
-                this.style.background = '';
-                currentAudio = null;
-                currentButton = null;
-                currentCard = null;
-            });
+            setupAudioEvents();
+            currentAudio.play().catch(tryNextFile);
         });
     });
     
@@ -323,17 +260,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = this.closest('.beat-card');
             const beatName = card.querySelector('h4').textContent;
             
-            // Scroll to contact form
             const contactSection = document.getElementById('contact');
             if (contactSection) {
                 contactSection.scrollIntoView({ behavior: 'smooth' });
-                
-                // Pre-fill subject
                 setTimeout(() => {
                     const subjectSelect = document.getElementById('subject');
-                    if (subjectSelect) {
-                        subjectSelect.value = 'beat';
-                    }
+                    if (subjectSelect) subjectSelect.value = 'beat';
                     const messageTextarea = document.getElementById('message');
                     if (messageTextarea) {
                         messageTextarea.value = `Ciao! Sono interessato al beat "${beatName}". Vorrei maggiori informazioni sull'acquisto.`;
@@ -344,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ============================================
-    // Contact Form Handling (Formspree)
+    // Contact Form
     // ============================================
     const contactForm = document.getElementById('contactForm');
     
@@ -352,72 +284,55 @@ document.addEventListener('DOMContentLoaded', function() {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form data
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            // Validate form
             if (!data.name || !data.email || !data.message) {
                 showNotification('error', 'Per favore, compila tutti i campi obbligatori.');
                 return;
             }
             
-            // Email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(data.email)) {
                 showNotification('error', 'Per favore, inserisci un indirizzo email valido.');
                 return;
             }
             
-            // Check if Formspree is configured
             const formAction = this.getAttribute('action');
             if (formAction.includes('YOUR_FORM_ID')) {
-                showNotification('error', '⚠️ Formspree non configurato! Apri index.html e sostituisci "YOUR_FORM_ID" con il tuo ID Formspree. Vedi le istruzioni nel commento HTML del form.');
+                showNotification('error', '⚠️ Formspree non configurato!');
                 return;
             }
             
-            // Show loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Invio in corso...';
             submitBtn.disabled = true;
             
-            // Send to Formspree via AJAX
             fetch(formAction, {
                 method: 'POST',
                 body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
+                headers: { 'Accept': 'application/json' }
             })
             .then(response => {
                 if (response.ok) {
                     submitBtn.innerHTML = '<i class="fas fa-check"></i> Messaggio Inviato!';
                     submitBtn.style.background = 'var(--neon-green)';
-                    
-                    showNotification('success', 'Grazie per averci contattato! Ti risponderemo al più presto.');
-                    
+                    showNotification('success', 'Grazie per averci contattato!');
                     this.reset();
-                    
                     setTimeout(() => {
                         submitBtn.innerHTML = originalText;
                         submitBtn.style.background = '';
                         submitBtn.disabled = false;
                     }, 3000);
                 } else {
-                    response.json().then(data => {
-                        if (data.error) {
-                            showNotification('error', 'Errore: ' + data.error);
-                        } else {
-                            showNotification('error', 'Errore nell\'invio. Riprova.');
-                        }
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.disabled = false;
-                    });
+                    showNotification('error', 'Errore nell\'invio.');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 }
             })
             .catch(error => {
-                showNotification('error', 'Errore di connessione. Riprova.');
+                showNotification('error', 'Errore di connessione.');
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             });
@@ -428,13 +343,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Notification System
     // ============================================
     function showNotification(type, message) {
-        // Remove existing notification
-        const existingNotification = document.querySelector('.notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
+        const existing = document.querySelector('.notification');
+        if (existing) existing.remove();
         
-        // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.innerHTML = `
@@ -445,62 +356,35 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        // Add styles
         notification.style.cssText = `
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 10000;
-            background-color: ${type === 'success' ? 'var(--neon-green)' : '#f44336'};
+            position: fixed; top: 100px; right: 20px; z-index: 10000;
+            background: ${type === 'success' ? 'var(--neon-green)' : '#f44336'};
             color: ${type === 'success' ? 'var(--black)' : 'white'};
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-            max-width: 400px;
+            padding: 15px 25px; border-radius: 10px; max-width: 400px;
             animation: slideIn 0.3s ease;
         `;
         
-        // Add animation styles
         if (!document.getElementById('notification-styles')) {
             const style = document.createElement('style');
             style.id = 'notification-styles';
             style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                .notification-content {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
+                @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+                .notification-content { display: flex; align-items: center; gap: 10px; }
                 .notification-content i { font-size: 1.5rem; }
                 .notification-content p { flex: 1; margin: 0; }
-                .notification-close {
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    font-size: 1rem;
-                    padding: 5px;
-                    color: inherit;
-                }
+                .notification-close { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 5px; color: inherit; }
             `;
             document.head.appendChild(style);
         }
         
         document.body.appendChild(notification);
         
-        // Close button
-        notification.querySelector('.notification-close').addEventListener('click', function() {
+        notification.querySelector('.notification-close').addEventListener('click', () => {
             notification.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => notification.remove(), 300);
         });
         
-        // Auto-remove after 5 seconds
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.style.animation = 'slideOut 0.3s ease';
@@ -510,13 +394,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ============================================
-    // Scroll Animations (Intersection Observer)
+    // Scroll Animations
     // ============================================
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -524,36 +403,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 observer.unobserve(entry.target);
             }
         });
-    }, observerOptions);
+    }, { threshold: 0.1 });
     
-    // Observe elements
-    const animateElements = document.querySelectorAll('.beat-card, .service-card, .artist-card, .value-item');
-    animateElements.forEach((el, index) => {
+    document.querySelectorAll('.beat-card, .service-card, .artist-card, .value-item').forEach((el, index) => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
         el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
         observer.observe(el);
     });
     
-    // Add animation CSS
     const animationStyle = document.createElement('style');
     animationStyle.textContent = `
-        .animate-in {
-            opacity: 1 !important;
-            transform: translateY(0) !important;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .animate-in { opacity: 1 !important; transform: translateY(0) !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     `;
     document.head.appendChild(animationStyle);
     
-    // ============================================
-    // Console Welcome Message
-    // ============================================
     console.log('%c👑 EMPIRE24RECORDS', 'font-size: 24px; font-weight: bold; color: #9B59B6; background: #000; padding: 10px;');
     console.log('%cIndependent Sound. Empire Mindset.', 'font-size: 14px; color: #39FF14;');
-    console.log('%cCreated by Santos Got The Key', 'font-size: 12px; font-style: italic; color: #888;');
-    
 });
