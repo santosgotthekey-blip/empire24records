@@ -155,112 +155,118 @@ document.addEventListener('DOMContentLoaded', function() {
     // Audio Player - Fixed overlapping audio
     // ============================================
     let currentAudio = null;
-    let currentButton = null;
-    let currentCard = null;
-    let currentIsPlaying = false;
+    let currentBtnEl = null;
+    let audioErrorHandled = false;
     
-    function stopCurrentAudio() {
+    function stopAllAudio() {
         if (currentAudio) {
             currentAudio.pause();
-            currentAudio.currentTime = 0;
+            currentAudio.src = '';
             currentAudio = null;
         }
-        if (currentButton) {
-            currentButton.querySelector('i').classList.remove('fa-pause');
-            currentButton.querySelector('i').classList.add('fa-play');
-            currentButton.style.background = '';
+        if (currentBtnEl) {
+            const icon = currentBtnEl.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            }
+            currentBtnEl.style.background = '';
         }
-        currentIsPlaying = false;
+        audioErrorHandled = false;
     }
     
     const beatPlayButtons = document.querySelectorAll('.btn-beat-play');
     
     beatPlayButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
             const card = this.closest('.beat-card');
             const audioFolder = card.getAttribute('data-audio');
             const icon = this.querySelector('i');
             
-            // If clicking same playing button, stop it
-            if (currentCard === card && currentIsPlaying) {
-                stopCurrentAudio();
-                currentCard = null;
-                currentButton = null;
+            // If clicking same button that's currently playing, stop it
+            if (currentBtnEl === this && currentAudio && !currentAudio.paused) {
+                stopAllAudio();
                 return;
             }
             
-            // Stop any currently playing audio before starting new one
-            stopCurrentAudio();
+            // Forcefully stop any currently playing audio
+            stopAllAudio();
             
             if (!audioFolder) {
                 showNotification('error', 'Audio non disponibile per questo beat.');
                 return;
             }
             
-            // Try multiple possible MP3 filenames in the folder
             const possibleFiles = [
+                audioFolder + 'bellla guitar piano.mp3',
                 audioFolder + 'beat.mp3',
                 audioFolder + 'audio.mp3',
                 audioFolder + 'track.mp3',
                 audioFolder + 'preview.mp3',
                 audioFolder + 'song.mp3',
-                audioFolder + 'bellla guitar piano.mp3',
             ];
             
             let fileIndex = 0;
-            let foundFile = false;
-            currentButton = this;
-            currentCard = card;
+            currentBtnEl = this;
             
-            function tryNextFile() {
-                fileIndex++;
-                if (fileIndex < possibleFiles.length) {
-                    currentAudio = new Audio(possibleFiles[fileIndex]);
-                    setupAudioEvents();
-                    currentAudio.play().catch(tryNextFile);
-                } else {
+            function tryLoadFile() {
+                if (audioErrorHandled) return;
+                
+                if (fileIndex >= possibleFiles.length) {
                     showNotification('error', 'Aggiungi un file .mp3 nella cartella ' + audioFolder + ' (nomi accettati: beat.mp3, audio.mp3, track.mp3, preview.mp3, song.mp3, bellla guitar piano.mp3)');
                     icon.classList.remove('fa-pause');
                     icon.classList.add('fa-play');
                     btn.style.background = '';
                     currentAudio = null;
-                    currentButton = null;
-                    currentCard = null;
-                    currentIsPlaying = false;
+                    currentBtnEl = null;
+                    audioErrorHandled = true;
+                    return;
                 }
-            }
-            
-            function setupAudioEvents() {
-                currentAudio.addEventListener('play', () => {
+                
+                audioErrorHandled = false;
+                currentAudio = new Audio(possibleFiles[fileIndex]);
+                
+                // Clone audio to remove existing listeners
+                const freshAudio = currentAudio.cloneNode();
+                
+                const onPlay = () => {
                     icon.classList.remove('fa-play');
                     icon.classList.add('fa-pause');
                     btn.style.background = 'var(--neon-purple)';
-                    currentIsPlaying = true;
-                });
+                };
                 
-                currentAudio.addEventListener('ended', () => {
-                    icon.classList.remove('fa-pause');
-                    icon.classList.add('fa-play');
-                    btn.style.background = '';
-                    currentIsPlaying = false;
-                    currentAudio = null;
-                    currentButton = null;
-                    currentCard = null;
-                });
+                const onEnded = () => {
+                    stopAllAudio();
+                };
                 
-                currentAudio.addEventListener('pause', () => {
-                    icon.classList.remove('fa-pause');
-                    icon.classList.add('fa-play');
-                    btn.style.background = '';
-                    currentIsPlaying = false;
-                });
+                const onError = () => {
+                    fileIndex++;
+                    audioErrorHandled = true;
+                    stopAllAudio();
+                    // Small delay then try next file
+                    setTimeout(() => {
+                        if (currentBtnEl === btn) {
+                            tryLoadFile();
+                        }
+                    }, 100);
+                };
                 
-                currentAudio.addEventListener('error', tryNextFile);
+                freshAudio.addEventListener('play', onPlay, { once: true });
+                freshAudio.addEventListener('ended', onEnded, { once: true });
+                freshAudio.addEventListener('error', onError, { once: true });
+                
+                currentAudio = freshAudio;
+                
+                const playPromise = freshAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        onError();
+                    });
+                }
             }
             
-            currentAudio = new Audio(possibleFiles[0]);
-            setupAudioEvents();
-            currentAudio.play().catch(tryNextFile);
+            tryLoadFile();
         });
     });
     
