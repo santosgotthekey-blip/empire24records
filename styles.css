@@ -131,21 +131,19 @@ ul {
 }
 
 .loader-logo {
-    font-family: var(--font-heading);
-    font-size: 3rem;
-    font-weight: 900;
     margin-bottom: 30px;
 }
 
-.loader-text {
-    color: var(--white);
+.loader-logo-img {
+    max-width: 200px;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(155,89,182,0.5));
+    animation: logoPulse 2s ease-in-out infinite;
 }
 
-.loader-accent {
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+@keyframes logoPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
 .loader-bar {
@@ -300,26 +298,18 @@ ul {
 .nav-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
 }
 
-.logo-crown {
-    font-size: 1.3rem;
-    color: var(--neon-purple);
+.nav-logo-img {
+    height: 45px;
+    width: auto;
+    transition: var(--transition);
+    filter: drop-shadow(0 0 10px rgba(155,89,182,0.3));
 }
 
-.logo-name {
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--white);
-}
-
-.logo-accent {
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.nav-logo:hover .nav-logo-img {
+    filter: drop-shadow(0 0 15px rgba(155,89,182,0.6));
+    transform: scale(1.05);
 }
 
 .nav-menu {
@@ -1302,12 +1292,13 @@ ul {
 .footer-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
     margin-bottom: 15px;
 }
 
-.footer-logo .logo-crown {
-    color: var(--neon-purple);
+.footer-logo-img {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 0 10px rgba(155,89,182,0.3));
 }
 
 .footer-tagline {
