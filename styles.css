@@ -382,7 +382,7 @@ ul {
    ============================================ */
 .hero {
     position: relative;
-    min-height: 100vh;
+    min-height: 80vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -531,7 +531,7 @@ ul {
    About Section
    ============================================ */
 .about {
-    padding: var(--section-padding);
+    padding: 60px 0;
     background: var(--dark-gray);
 }
 
