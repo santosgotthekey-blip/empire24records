@@ -224,31 +224,92 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ============================================
-    // Beat Play Buttons
+    // Audio Player
     // ============================================
+    let currentAudio = null;
+    let currentButton = null;
+    let currentCard = null;
+    
     const beatPlayButtons = document.querySelectorAll('.btn-beat-play');
+    const beatCards = document.querySelectorAll('.beat-card');
     
     beatPlayButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const card = this.closest('.beat-card');
+            const audioSrc = card.getAttribute('data-audio');
             const icon = this.querySelector('i');
             
-            // Toggle play/pause state
-            if (icon.classList.contains('fa-play')) {
-                // Reset all other buttons
-                beatPlayButtons.forEach(b => {
-                    b.querySelector('i').classList.remove('fa-pause');
-                    b.querySelector('i').classList.add('fa-play');
-                });
-                
-                icon.classList.remove('fa-play');
-                icon.classList.add('fa-pause');
-                this.style.background = 'var(--neon-purple)';
-            } else {
+            // If clicking the same button that's currently playing
+            if (currentCard === card && currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
                 icon.classList.remove('fa-pause');
                 icon.classList.add('fa-play');
                 this.style.background = '';
+                currentAudio = null;
+                currentButton = null;
+                currentCard = null;
+                return;
             }
+            
+            // Stop any currently playing audio
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                if (currentButton) {
+                    currentButton.querySelector('i').classList.remove('fa-pause');
+                    currentButton.querySelector('i').classList.add('fa-play');
+                    currentButton.style.background = '';
+                }
+            }
+            
+            // Check if audio source exists
+            if (!audioSrc) {
+                showNotification('error', 'Audio non disponibile per questo beat.');
+                return;
+            }
+            
+            // Create new audio element
+            currentAudio = new Audio(audioSrc);
+            currentButton = this;
+            currentCard = card;
+            
+            // Handle audio events
+            currentAudio.addEventListener('play', () => {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                this.style.background = 'var(--neon-purple)';
+            });
+            
+            currentAudio.addEventListener('ended', () => {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                this.style.background = '';
+                currentAudio = null;
+                currentButton = null;
+                currentCard = null;
+            });
+            
+            currentAudio.addEventListener('error', () => {
+                showNotification('error', 'Errore nel caricamento dell\'audio. Il beat sarà disponibile a breve.');
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                this.style.background = '';
+                currentAudio = null;
+                currentButton = null;
+                currentCard = null;
+            });
+            
+            // Try to play
+            currentAudio.play().catch(err => {
+                console.log('Audio playback error:', err);
+                showNotification('error', 'Audio non disponibile. Il beat sarà disponibile a breve.');
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                this.style.background = '';
+                currentAudio = null;
+                currentButton = null;
+                currentCard = null;
+            });
         });
     });
     
