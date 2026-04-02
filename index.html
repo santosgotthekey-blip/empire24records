@@ -470,99 +470,56 @@
     <!-- Contact Section -->
     <section class="contact" id="contact">
         <div class="container">
-            <div class="section-header">
-                <span class="section-tag">Parliamone</span>
-                <h2 class="section-title">Contattaci</h2>
-                <div class="section-line"></div>
+            <div class="contact-links-horizontal">
+                <a href="https://www.instagram.com/empire24records" target="_blank" class="contact-link-item">
+                    <i class="fab fa-instagram"></i>
+                    <span>@empire24records</span>
+                </a>
+                <a href="https://www.instagram.com/santosgotthekey" target="_blank" class="contact-link-item">
+                    <i class="fab fa-instagram"></i>
+                    <span>@santosgotthekey</span>
+                </a>
+                <a href="mailto:empire24records@gmail.com" class="contact-link-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>empire24records@gmail.com</span>
+                </a>
+                <a href="#" target="_blank" class="contact-link-item">
+                    <i class="fab fa-youtube"></i>
+                    <span>Empire24Records</span>
+                </a>
             </div>
-
-            <div class="contact-content">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fab fa-instagram"></i>
-                        </div>
-                        <div class="contact-text">
-                            <h4>Instagram</h4>
-                            <a href="https://www.instagram.com/empire24records" target="_blank">@empire24records</a>
-                        </div>
+            <!-- Form nascosto per uso futuro -->
+            <div class="contact-form-hidden" style="display:none;">
+                <form class="contact-form" id="contactForm" action="https://formspree.io/f/meepzbdq" method="POST">
+                    <h3>Scrivici un Messaggio</h3>
+                    <div class="form-group">
+                        <label for="name">Nome / Nome d'Arte *</label>
+                        <input type="text" id="name" name="name" required placeholder="Il tuo nome o nome d'artista">
                     </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fab fa-instagram"></i>
-                        </div>
-                        <div class="contact-text">
-                            <h4>Producer</h4>
-                            <a href="https://www.instagram.com/santosgotthekey" target="_blank">@santosgotthekey</a>
-                        </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required placeholder="La tua email">
                     </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="contact-text">
-                            <h4>Email</h4>
-                            <a href="mailto:empire24records@gmail.com">empire24records@gmail.com</a>
-                        </div>
+                    <div class="form-group">
+                        <label for="subject">Oggetto</label>
+                        <select id="subject" name="subject">
+                            <option value="">Seleziona...</option>
+                            <option value="beat">Acquisto Beat</option>
+                            <option value="custom">Beat Custom</option>
+                            <option value="mixing">Mixing & Mastering</option>
+                            <option value="collab">Collaborazione</option>
+                            <option value="label">Entrare nella Label</option>
+                            <option value="other">Altro</option>
+                        </select>
                     </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fab fa-youtube"></i>
-                        </div>
-                        <div class="contact-text">
-                            <h4>YouTube</h4>
-                            <a href="#" target="_blank">Empire24Records</a>
-                        </div>
+                    <div class="form-group">
+                        <label for="message">Messaggio *</label>
+                        <textarea id="message" name="message" rows="5" required placeholder="Parlaci del tuo progetto..."></textarea>
                     </div>
-
-                    <div class="contact-socials">
-                        <a href="https://www.instagram.com/empire24records" target="_blank" class="social-link">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" target="_blank" class="social-link">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                        <a href="#" target="_blank" class="social-link">
-                            <i class="fab fa-spotify"></i>
-                        </a>
-                        <a href="#" target="_blank" class="social-link">
-                            <i class="fab fa-soundcloud"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="contact-form-wrapper">
-                    <form class="contact-form" id="contactForm" action="https://formspree.io/f/meepzbdq" method="POST">
-                        <h3>Scrivici un Messaggio</h3>
-                        <div class="form-group">
-                            <label for="name">Nome / Nome d'Arte *</label>
-                            <input type="text" id="name" name="name" required placeholder="Il tuo nome o nome d'artista">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email *</label>
-                            <input type="email" id="email" name="email" required placeholder="La tua email">
-                        </div>
-                        <div class="form-group">
-                            <label for="subject">Oggetto</label>
-                            <select id="subject" name="subject">
-                                <option value="">Seleziona...</option>
-                                <option value="beat">Acquisto Beat</option>
-                                <option value="custom">Beat Custom</option>
-                                <option value="mixing">Mixing & Mastering</option>
-                                <option value="collab">Collaborazione</option>
-                                <option value="label">Entrare nella Label</option>
-                                <option value="other">Altro</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Messaggio *</label>
-                            <textarea id="message" name="message" rows="5" required placeholder="Parlaci del tuo progetto..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full">
-                            <i class="fas fa-paper-plane"></i> Invia Messaggio
-                        </button>
-                    </form>
-                </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-paper-plane"></i> Invia Messaggio
+                    </button>
+                </form>
             </div>
         </div>
     </section>

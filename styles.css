@@ -1113,39 +1113,42 @@ ul {
    Contact Section
    ============================================ */
 .contact {
-    padding: var(--section-padding);
+    padding: 40px 0;
     background: var(--dark-gray);
 }
 
-.contact-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-}
-
-.contact-info {
+.contact-links-horizontal {
     display: flex;
-    flex-direction: column;
-    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
 }
 
-.contact-item {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-}
-
-.contact-icon {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: var(--medium-gray);
+.contact-link-item {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    color: var(--neon-purple);
-    flex-shrink: 0;
+    gap: 10px;
+    color: var(--white);
+    text-decoration: none;
+    padding: 12px 20px;
+    background: var(--medium-gray);
+    border-radius: 10px;
+    transition: var(--transition);
+}
+
+.contact-link-item:hover {
+    background: var(--neon-purple);
+    transform: translateY(-3px);
+}
+
+.contact-link-item i {
+    font-size: 1.2rem;
+    color: var(--neon-green);
+}
+
+.contact-link-item span {
+    font-size: 0.95rem;
 }
 
 .contact-text h4 {
