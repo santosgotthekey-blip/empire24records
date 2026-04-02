@@ -526,41 +526,6 @@ ul {
     60% { transform: translateY(-5px); }
 }
 
-.hero-stats {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    gap: 60px;
-    padding: 30px;
-    background: rgba(0,0,0,0.8);
-    border-top: 1px solid var(--medium-gray);
-    z-index: 2;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    display: block;
-    font-family: var(--font-heading);
-    font-size: 2rem;
-    font-weight: 700;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.stat-label {
-    font-size: 0.85rem;
-    color: var(--text-gray);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
 
 /* ============================================
    About Section
