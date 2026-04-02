@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
     });
     
-    // Fallback: hide loader after 3 seconds
     setTimeout(() => {
         loader.classList.add('hidden');
     }, 3000);
@@ -153,11 +152,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ============================================
-    // Audio Player - Folder based
+    // Audio Player - Fixed overlapping audio
     // ============================================
     let currentAudio = null;
     let currentButton = null;
     let currentCard = null;
+    let currentIsPlaying = false;
+    
+    function stopCurrentAudio() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+        }
+        if (currentButton) {
+            currentButton.querySelector('i').classList.remove('fa-pause');
+            currentButton.querySelector('i').classList.add('fa-play');
+            currentButton.style.background = '';
+        }
+        currentIsPlaying = false;
+    }
     
     const beatPlayButtons = document.querySelectorAll('.btn-beat-play');
     
@@ -167,28 +181,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const audioFolder = card.getAttribute('data-audio');
             const icon = this.querySelector('i');
             
-            // If clicking same playing button, pause it
-            if (currentCard === card && currentAudio && !currentAudio.paused) {
-                currentAudio.pause();
-                icon.classList.remove('fa-pause');
-                icon.classList.add('fa-play');
-                this.style.background = '';
-                currentAudio = null;
-                currentButton = null;
+            // If clicking same playing button, stop it
+            if (currentCard === card && currentIsPlaying) {
+                stopCurrentAudio();
                 currentCard = null;
+                currentButton = null;
                 return;
             }
             
-            // Stop current audio
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                if (currentButton) {
-                    currentButton.querySelector('i').classList.remove('fa-pause');
-                    currentButton.querySelector('i').classList.add('fa-play');
-                    currentButton.style.background = '';
-                }
-            }
+            // Stop any currently playing audio before starting new one
+            stopCurrentAudio();
             
             if (!audioFolder) {
                 showNotification('error', 'Audio non disponibile per questo beat.');
@@ -206,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
             
             let fileIndex = 0;
-            currentAudio = new Audio(possibleFiles[0]);
+            let foundFile = false;
             currentButton = this;
             currentCard = card;
             
@@ -217,13 +219,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     setupAudioEvents();
                     currentAudio.play().catch(tryNextFile);
                 } else {
-                    showNotification('error', 'Aggiungi un file .mp3 nella cartella ' + audioFolder + ' (nomi accettati: beat.mp3, audio.mp3, track.mp3, preview.mp3, song.mp3)');
+                    showNotification('error', 'Aggiungi un file .mp3 nella cartella ' + audioFolder + ' (nomi accettati: beat.mp3, audio.mp3, track.mp3, preview.mp3, song.mp3, bellla guitar piano.mp3)');
                     icon.classList.remove('fa-pause');
                     icon.classList.add('fa-play');
                     btn.style.background = '';
                     currentAudio = null;
                     currentButton = null;
                     currentCard = null;
+                    currentIsPlaying = false;
                 }
             }
             
@@ -232,20 +235,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon.classList.remove('fa-play');
                     icon.classList.add('fa-pause');
                     btn.style.background = 'var(--neon-purple)';
+                    currentIsPlaying = true;
                 });
                 
                 currentAudio.addEventListener('ended', () => {
                     icon.classList.remove('fa-pause');
                     icon.classList.add('fa-play');
                     btn.style.background = '';
+                    currentIsPlaying = false;
                     currentAudio = null;
                     currentButton = null;
                     currentCard = null;
                 });
                 
+                currentAudio.addEventListener('pause', () => {
+                    icon.classList.remove('fa-pause');
+                    icon.classList.add('fa-play');
+                    btn.style.background = '';
+                    currentIsPlaying = false;
+                });
+                
                 currentAudio.addEventListener('error', tryNextFile);
             }
             
+            currentAudio = new Audio(possibleFiles[0]);
             setupAudioEvents();
             currentAudio.play().catch(tryNextFile);
         });
