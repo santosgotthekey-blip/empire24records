@@ -1012,8 +1012,11 @@ ul {
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
     gap: 30px;
+    max-width: 980px;
+    margin: 0 auto;
+    align-items: stretch;
 }
 
 .service-card {
@@ -1024,6 +1027,8 @@ ul {
     transition: var(--transition);
     border: 1px solid var(--medium-gray);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .service-card:hover {
@@ -1088,6 +1093,7 @@ ul {
 .service-features {
     text-align: left;
     margin-bottom: 25px;
+    flex-grow: 1;
 }
 
 .service-features li {
@@ -1105,6 +1111,7 @@ ul {
 }
 
 .service-price {
+    margin-top: auto;
     padding-top: 20px;
     border-top: 1px solid var(--medium-gray);
 }
