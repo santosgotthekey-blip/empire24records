@@ -124,10 +124,28 @@
             background: var(--neon-purple);
         }
 
-        .calendar-day.selected {
+        .calendar-day.range-single {
             background: var(--neon-green);
             color: var(--black);
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.35), 0 0 16px rgba(57, 255, 20, 0.35);
+        }
+
+        .calendar-day.range-start,
+        .calendar-day.range-end {
+            background: #5c2a79;
+            color: var(--white);
+            font-weight: 700;
+        }
+
+        .calendar-day.range-start {
+            box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.55), 0 0 16px rgba(57, 255, 20, 0.35);
+        }
+
+        .calendar-day.range-middle {
+            background: rgba(155, 89, 182, 0.35);
+            color: var(--white);
+            font-weight: 500;
         }
 
         .calendar-day.disabled {
@@ -495,15 +513,71 @@
 
         let spCurrentDate = new Date();
         let psgCurrentDate = new Date();
-        let spSelectedDate = null;
-        let psgSelectedDate = null;
+        let spSelectedRange = { start: null, end: null };
+        let psgSelectedRange = { start: null, end: null };
 
         const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
         const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 
+        function normalizeDate(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function isSameDate(dateA, dateB) {
+            return Boolean(dateA && dateB && dateA.getTime() === dateB.getTime());
+        }
+
+        function formatDate(date) {
+            return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        }
+
+        function getStudioRange(studio) {
+            return studio === 'sp' ? spSelectedRange : psgSelectedRange;
+        }
+
+        function updateSelectedDateDisplay(studio) {
+            const selectedRange = getStudioRange(studio);
+            const selectedDateId = studio === 'sp' ? 'sp-selected-date' : 'psg-selected-date';
+            const selectedInputId = studio === 'sp' ? 'sp-date-input' : 'psg-date-input';
+
+            let displayText = 'Nessuna data selezionata';
+            let inputValue = '';
+
+            if (selectedRange.start) {
+                const startDateText = formatDate(selectedRange.start);
+
+                if (selectedRange.end) {
+                    const endDateText = formatDate(selectedRange.end);
+                    displayText = `${startDateText} - ${endDateText}`;
+                    inputValue = `${startDateText} - ${endDateText}`;
+                } else {
+                    displayText = startDateText;
+                    inputValue = startDateText;
+                }
+            }
+
+            document.getElementById(selectedDateId).textContent = displayText;
+            document.getElementById(selectedInputId).value = inputValue;
+        }
+
+        function isDateInRange(dayDate, startDate, endDate) {
+            if (!startDate) return false;
+
+            const dayTime = dayDate.getTime();
+            const startTime = startDate.getTime();
+
+            if (!endDate) {
+                return dayTime === startTime;
+            }
+
+            const endTime = endDate.getTime();
+            return dayTime >= startTime && dayTime <= endTime;
+        }
+
         function generateCalendar(studio, date) {
             const calendarId = studio === 'sp' ? 'sp-calendar' : 'psg-calendar';
             const monthYearId = studio === 'sp' ? 'sp-month-year' : 'psg-month-year';
+            const selectedRange = getStudioRange(studio);
             
             const year = date.getFullYear();
             const month = date.getMonth();
@@ -512,7 +586,7 @@
             
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const today = new Date();
+            const today = normalizeDate(new Date());
             
             let calendarHTML = '';
             
@@ -528,14 +602,28 @@
             
             // Days of the month
             for (let day = 1; day <= daysInMonth; day++) {
-                const dayDate = new Date(year, month, day);
-                const isPast = dayDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                const isSelected = (studio === 'sp' && spSelectedDate && spSelectedDate.getTime() === dayDate.getTime()) ||
-                                  (studio === 'psg' && psgSelectedDate && psgSelectedDate.getTime() === dayDate.getTime());
+                const dayDate = normalizeDate(new Date(year, month, day));
+                const isPast = dayDate < today;
+                const isInRange = isDateInRange(dayDate, selectedRange.start, selectedRange.end);
+                const isRangeStart = isSameDate(dayDate, selectedRange.start);
+                const isRangeEnd = isSameDate(dayDate, selectedRange.end);
                 
                 let classes = 'calendar-day';
                 if (isPast) classes += ' disabled';
-                if (isSelected) classes += ' selected';
+
+                if (!isPast && isInRange) {
+                    if (isRangeStart && !selectedRange.end) {
+                        classes += ' range-start range-single';
+                    } else if (isRangeStart && isRangeEnd) {
+                        classes += ' range-start range-end range-single';
+                    } else if (isRangeStart) {
+                        classes += ' range-start';
+                    } else if (isRangeEnd) {
+                        classes += ' range-end';
+                    } else {
+                        classes += ' range-middle';
+                    }
+                }
                 
                 if (!isPast) {
                     calendarHTML += `<div class="${classes}" onclick="selectDate('${studio}', ${year}, ${month}, ${day})">${day}</div>`;
@@ -548,18 +636,37 @@
         }
 
         function selectDate(studio, year, month, day) {
-            const selectedDate = new Date(year, month, day);
-            const dateStr = `${day}/${month + 1}/${year}`;
+            const clickedDate = normalizeDate(new Date(year, month, day));
+            const selectedRange = getStudioRange(studio);
             
-            if (studio === 'sp') {
-                spSelectedDate = selectedDate;
-                document.getElementById('sp-selected-date').textContent = dateStr;
-                document.getElementById('sp-date-input').value = dateStr;
+            if (!selectedRange.start) {
+                selectedRange.start = clickedDate;
+                selectedRange.end = null;
+            } else if (selectedRange.start && !selectedRange.end) {
+                if (isSameDate(clickedDate, selectedRange.start)) {
+                    // Click same day again -> deselect
+                    selectedRange.start = null;
+                    selectedRange.end = null;
+                } else if (clickedDate < selectedRange.start) {
+                    // If second click is before start, swap to keep correct order
+                    selectedRange.end = selectedRange.start;
+                    selectedRange.start = clickedDate;
+                } else {
+                    selectedRange.end = clickedDate;
+                }
             } else {
-                psgSelectedDate = selectedDate;
-                document.getElementById('psg-selected-date').textContent = dateStr;
-                document.getElementById('psg-date-input').value = dateStr;
+                if (isSameDate(clickedDate, selectedRange.start) || isSameDate(clickedDate, selectedRange.end)) {
+                    // Click range edge again -> deselect current range
+                    selectedRange.start = null;
+                    selectedRange.end = null;
+                } else {
+                    // If a full range already exists, start a new selection from clicked date
+                    selectedRange.start = clickedDate;
+                    selectedRange.end = null;
+                }
             }
+
+            updateSelectedDateDisplay(studio);
             
             // Regenerate calendar to show selection
             generateCalendar(studio, studio === 'sp' ? spCurrentDate : psgCurrentDate);
@@ -576,6 +683,8 @@
         }
 
         // Initialize calendars
+        updateSelectedDateDisplay('sp');
+        updateSelectedDateDisplay('psg');
         generateCalendar('sp', spCurrentDate);
         generateCalendar('psg', psgCurrentDate);
     </script>
