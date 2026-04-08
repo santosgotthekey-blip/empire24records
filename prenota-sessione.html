@@ -303,7 +303,13 @@
             <a href="index.html" class="nav-logo">
                 <img src="Foto sito/logo.png" alt="Empire24Records" class="nav-logo-img">
             </a>
-            <ul class="nav-menu active" id="navMenu">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span class="hamburger"></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <button class="nav-close" id="navClose" aria-label="Chiudi menu">
+                    <i class="fas fa-times"></i>
+                </button>
                 <li><a href="index.html#home" class="nav-link">Home</a></li>
                 <li><a href="index.html#about" class="nav-link">Chi Siamo</a></li>
                 <li><a href="index.html#services" class="nav-link">Servizi</a></li>
@@ -449,6 +455,44 @@
     </footer>
 
     <script>
+        // Mobile navigation (booking page)
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+        const navClose = document.getElementById('navClose');
+
+        if (navToggle && navMenu) {
+            navToggle.addEventListener('click', function () {
+                navMenu.classList.toggle('active');
+                this.classList.toggle('active');
+                document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+            });
+        }
+
+        if (navClose && navMenu && navToggle) {
+            navClose.addEventListener('click', function () {
+                navMenu.classList.remove('active');
+                navToggle.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (navMenu) navMenu.classList.remove('active');
+                if (navToggle) navToggle.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!navToggle || !navMenu) return;
+            if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                navToggle.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
         let spCurrentDate = new Date();
         let psgCurrentDate = new Date();
         let spSelectedDate = null;
